@@ -82,15 +82,73 @@ class DB{
 
         return $this->pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
     }
+//計算某個欄位或是計算符合條件的筆數
+    //max,min,sum,count,avg
+    public function math($math,$col,...$arg){
+        $sql="SELECT $math($col) FROM $this->table ";
 
-    //計算某個欄位或是計算符合條件的筆數
+        //依參數數量來決定進行的動作因此使用switch...case
+        switch(count($arg)){
+            case 1:
+  
+                if(is_array($arg[0])){
 
+                    foreach($arg[0] as $key => $value){
+        
+                        $tmp[]="`$key`='$value'";
+        
+                    }
+        
+                    $sql.=" WHERE ". implode(" AND " ,$tmp);
+                }else{
+                    
+                    $sql.=$arg[0];
+                }
+            break;
+            case 2:
+
+                foreach($arg[0] as $key => $value){
+        
+                    $tmp[]="`$key`='$value'";
+        
+                }
+        
+                $sql.=" WHERE ". implode(" AND " ,$tmp) . $arg[1];
+            break;
+        
+            }
+            echo "<pre>";
+            echo $sql;
+            echo "</pre>";
+            return $this->pdo->query($sql)->fetchColumn();
+    }
 
     //新增或更新資料
 
 
     //刪除資料
+    public function del($id){
+        $sql="SELECT FROM $this->table WHERE ";
+        if(is_array($id)){
 
+            foreach($id as $key => $value){
+        
+                $tmp[]="`$key`='$value'";
+    
+            }
+
+            $sql .= implode(' AND ',$tmp);
+
+        }else{
+
+            $sql .= " id='$id'";
+
+        }
+
+        //echo $sql;
+
+        return $this->pdo->exec($sql);
+    }
 
     //萬用的查詢
 
@@ -101,19 +159,30 @@ class DB{
 
 
 
-$students=new DB('students');
-echo "<pre>";
-print_r($students->find(['major'=>'美容科']));
-echo "</pre>"; 
-echo "<pre>";
-print_r($students->all(['major'=>'美容科']));
-echo "</pre>"; 
+// $students=new DB('students');
+// echo "<pre>";
+// print_r($students->find(['major'=>'美容科']));
+// echo "</pre>"; 
+// echo "<pre>";
+// print_r($students->all(['major'=>'美容科']));
+// echo "</pre>"; 
 
-/* $db=new DB('journal');
+$ledgers=new DB('ledgers');
 echo "<pre>";
-print_r($db->all(['item'=>'早餐']," ORDER by `money` desc"));
+print_r($ledgers->math('sum','cost',['item'=>'dinner']));
+echo "</pre>"; 
+echo "<pre>";
+print_r($ledgers->math('max','cost',['item'=>'dinner']));
+echo "</pre>"; 
+echo "<pre>";
+print_r($ledgers->math('count','*',['item'=>'dinner']));
 echo "</pre>";
-echo "<pre>";
-print_r($db->all());
-echo "</pre>"; */
+
+//  $db=new DB('ledgers');
+// echo "<pre>";
+// print_r($db->all(['item'=>'dinner']," ORDER by `money` desc"));
+// echo "</pre>";
+// echo "<pre>";
+// print_r($db->all());
+// echo "</pre>";
 ?>
