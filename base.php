@@ -123,28 +123,39 @@ class DB{
             return $this->pdo->query($sql)->fetchColumn();
     }
 
-    //新增或更新資料
-    public function save($array){
-        if(isset($array['id'])){
-            //update
-            foreach($array as $key => $value){
-                //sprint_f("`%s`='%s'",$key,$value)
-                if($key!='id'){
-                    $tmp[]="`$key`='$value'";
-                }
+ //新增或更新資料,僅限一次一筆資料
+ public function save($array){
+    if(isset($array['id'])){
+        //update
+        foreach($array as $key => $value){
+            //sprint_f("`%s`='%s'",$key,$value)
+            if($key!='id'){
+                $tmp[]="`$key`='$value'";
             }
-
-            $sql="UPDATE $this->table SET ".implode(" , ",$tmp);
-            $sql .= " WHERE `id`='{$array['id']}'";
-            //UPDATE $this->table SET col1=value1,col2=value2.....where id=? && col1=value1
-        }else{
-            //insert
         }
 
-        echo $sql;
+        $sql="UPDATE $this->table SET ".implode(" , ",$tmp);
+        $sql .= " WHERE `id`='{$array['id']}'";
+        //UPDATE $this->table SET col1=value1,col2=value2.....where id=? && col1=value1
+    }else{
+        //insert
+        //['col1'=>'value1','col3'=>'value3','col2'=>'value2',];
 
-        return $this->pdo->exec($sql);
+        /* $keys=array_keys($array);
+        
+        $cols=implode("`,`",array_keys($array));
+        $values=implode("','",$array); */
+
+        $sql="INSERT INTO $this->table (`".implode("`,`",array_keys($array))."`) 
+                                 VALUES('".implode("','",$array)."')";
+
+        //INSERT INTO $this->table(`col1`,`col2,`col3`.....) VALUES('value1','value2','value3'.....)
     }
+
+    //echo $sql;
+
+    return $this->pdo->exec($sql);
+}
 
     //刪除資料
     public function del($id){
