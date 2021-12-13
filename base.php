@@ -124,11 +124,31 @@ class DB{
     }
 
     //新增或更新資料
+    public function save($array){
+        if(isset($array['id'])){
+            //update
+            foreach($array as $key => $value){
+                //sprint_f("`%s`='%s'",$key,$value)
+                if($key!='id'){
+                    $tmp[]="`$key`='$value'";
+                }
+            }
 
+            $sql="UPDATE $this->table SET ".implode(" , ",$tmp);
+            $sql .= " WHERE `id`='{$array['id']}'";
+            //UPDATE $this->table SET col1=value1,col2=value2.....where id=? && col1=value1
+        }else{
+            //insert
+        }
+
+        echo $sql;
+
+        return $this->pdo->exec($sql);
+    }
 
     //刪除資料
     public function del($id){
-        $sql="SELECT FROM $this->table WHERE ";
+        $sql="DELETE FROM $this->table WHERE ";
         if(is_array($id)){
 
             foreach($id as $key => $value){
@@ -151,15 +171,23 @@ class DB{
     }
 
     //萬用的查詢
+    public function q($sql){
 
-
+        return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+    }
 
 
 }
 
 
 
-// $students=new DB('students');
+$students=new DB('students');
+echo "<pre>";
+print_r($students->save(['id'=>2,'major'=>'美容科']));
+echo "</pre>"; 
+// echo "<pre>";
+// print_r($students->q("select  * from `students` where `major`='美容科' && `id` < '50' "));
+// echo "</pre>"; 
 // echo "<pre>";
 // print_r($students->find(['major'=>'美容科']));
 // echo "</pre>"; 
@@ -167,22 +195,16 @@ class DB{
 // print_r($students->all(['major'=>'美容科']));
 // echo "</pre>"; 
 
-$ledgers=new DB('ledgers');
-echo "<pre>";
-print_r($ledgers->math('sum','cost',['item'=>'dinner']));
-echo "</pre>"; 
-echo "<pre>";
-print_r($ledgers->math('max','cost',['item'=>'dinner']));
-echo "</pre>"; 
-echo "<pre>";
-print_r($ledgers->math('count','*',['item'=>'dinner']));
-echo "</pre>";
+// $ledgers=new DB('ledgers');
+// echo "<pre>";
+// print_r($ledgers->math('sum','cost',['item'=>'dinner']));
+// echo "</pre>"; 
+// echo "<pre>";
+// print_r($ledgers->math('max','cost',['item'=>'dinner']));
+// echo "</pre>"; 
+// echo "<pre>";
+// print_r($ledgers->math('count','*',['item'=>'dinner']));
+// echo "</pre>";
 
-//  $db=new DB('ledgers');
-// echo "<pre>";
-// print_r($db->all(['item'=>'dinner']," ORDER by `money` desc"));
-// echo "</pre>";
-// echo "<pre>";
-// print_r($db->all());
-// echo "</pre>";
+
 ?>
